@@ -7,11 +7,11 @@
 // @include      https://store.steampowered.com/sub/*
 // @homepage     https://github.com/zhengyang3552/SteamHistoryLowestPriceQuery
 // @homepageURL https://github.com/zhengyang3552/SteamHistoryLowestPriceQuery
-// @downloadURL	https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuery/main/SteamHistoryLowestPriceQuery.js
+// @downloadURL https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuery/main/SteamHistoryLowestPriceQuery.js
 // @updateURL https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuery/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
-// @version     1.4
+// @version     1.5
 // @grant       GM_xmlhttpRequest
 // @enable      true
 // jshint esversion:6
@@ -20,7 +20,7 @@
 // 显示样式
 // 0 = 显示在购买按钮上面
 // 1 = 显示在购买信息框上面
-const INFO_STYLE = 1;
+// const INFO_STYLE = 1;
 
 // 货币区域覆盖，两个字母的国家代号,大小写均可
 // 空字符（""）代表不覆盖，使用steam的cookie中steamCountry的值
