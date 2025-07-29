@@ -20,7 +20,7 @@
 // 显示样式
 // 0 = 显示在购买按钮上面
 // 1 = 显示在购买信息框上面
-// const INFO_STYLE = 1;
+const INFO_STYLE = 1;
 
 // 货币区域覆盖，两个字母的国家代号,大小写均可
 // 空字符（""）代表不覆盖，使用steam的cookie中steamCountry的值
