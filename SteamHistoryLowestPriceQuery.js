@@ -7,8 +7,8 @@
 // @include      https://store.steampowered.com/sub/*
 // @homepage     https://github.com/zhengyang3552/SteamHistoryLowestPriceQuer
 // @homepageURL https://github.com/zhengyang3552/SteamHistoryLowestPriceQuer
-// @downloadURL	https://raw.kkgithub.com/zhengyang3552/SteamHistoryLowestPriceQuer/main/SteamHistoryLowestPriceQuery.js
-// @updateURL https://raw.kkgithub.com/zhengyang3552/SteamHistoryLowestPriceQuer/main/SteamHistoryLowestPriceQuery.js
+// @downloadURL	https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuer/main/SteamHistoryLowestPriceQuery.js
+// @updateURL https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuer/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
 // @version     1.4
