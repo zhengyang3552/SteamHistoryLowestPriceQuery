@@ -1,14 +1,14 @@
 // ==UserScript==
-// @name        Steam历史最低价格查询
+// @name        Steam史低价格查询
 // @namespace   https://github.com/zhengyang3552
 // @description  基于软妹币玩家、byzod的steam价格查询脚本的优化，删除了进包信息（需要与加速配合使用）
 // @include      https://store.steampowered.com/app/*
 // @include      https://store.steampowered.com/bundle/*
 // @include      https://store.steampowered.com/sub/*
-// @homepage     https://github.com/zhengyang3552/SteamHistoryLowestPriceQuer
-// @homepageURL https://github.com/zhengyang3552/SteamHistoryLowestPriceQuer
-// @downloadURL	https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuer/main/SteamHistoryLowestPriceQuery.js
-// @updateURL https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuer/main/SteamHistoryLowestPriceQuery.js
+// @homepage     https://github.com/zhengyang3552/SteamHistoryLowestPriceQuery
+// @homepageURL https://github.com/zhengyang3552/SteamHistoryLowestPriceQuery
+// @downloadURL	https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuery/main/SteamHistoryLowestPriceQuery.js
+// @updateURL https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuery/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
 // @version     1.4
