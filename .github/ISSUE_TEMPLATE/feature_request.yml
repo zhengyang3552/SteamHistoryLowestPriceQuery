@@ -1,0 +1,18 @@
+name: 新功能请求
+description: 想要添加一些新功能
+title: "[新功能]"  
+labels: ["新功能", "待确认"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **请填写以下信息，带 * 的为必填项** 
+
+  - type: textarea
+    id: bugname
+    attributes:
+      label: "新功能请求"
+      description: "详细描述你需要的新功能"
+      placeholder: ""
+    validations:
+      required: true
