@@ -23,9 +23,9 @@ body:
       label: "bug复现步骤"
       description: "如果不知道怎么复现的就不填"
       placeholder: |
-        1. 首先这样.
-        2. 然后这样
-        3. 最后再这样
+        1. 首先这样;
+        2. 然后这样;
+        3. 最后再这样;
 
   - type: input
     id: bugenvironment
