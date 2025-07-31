@@ -13,6 +13,6 @@ body:
     attributes:
       label: "新功能请求"
       description: "详细描述你需要的新功能"
-      placeholder: ""
+      placeholder: "详细描述你需要的新功能"
     validations:
       required: true
