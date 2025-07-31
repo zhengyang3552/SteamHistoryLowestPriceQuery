@@ -1,6 +1,6 @@
 name: 报告Bug
 description: 报告使用脚本时出现的bug，或者通过代码发现的bug
-  title: "[BUG]"  
+title: "[BUG]"  
 labels: ["bug", "待确认"]
 body:
   - type: markdown
