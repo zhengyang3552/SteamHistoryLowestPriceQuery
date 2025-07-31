@@ -11,7 +11,7 @@ body:
   - type: textarea
     id: bugname
     attributes:
-      label: "bug描述 *"
+      label: "bug描述"
       description: "输入使用时出现的bug，或者你通过代码发现的bug"
       placeholder: "在此详细描述bug出现时的现象或者你发现的bug"
     validations:
