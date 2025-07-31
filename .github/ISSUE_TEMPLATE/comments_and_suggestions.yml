@@ -1,7 +1,7 @@
 name: 意见/建议
 description: 对此脚本弹出一些意见/建议
 title: "[意见/建议]"  
-labels: ["意见/建议"; "待确认"]
+labels: ["意见/建议","待确认"]
 body:
   - type: markdown
     attributes:
