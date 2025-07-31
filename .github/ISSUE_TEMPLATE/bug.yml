@@ -1,21 +1,12 @@
 name: 报告Bug
 description: 报告使用脚本时出现的bug，或者通过代码发现的bug
-title: ""  
+  title: "[BUG]"  
 labels: ["bug", "待确认"]
 body:
   - type: markdown
     attributes:
       value: |
         **请填写以下信息，带 * 的为必填项** 
-
-  - type: input
-    id: issue_title
-    attributes:
-      label: "主标题 *"
-      description: "简要描述问题本质"
-      placeholder: "例如：XX功能在XX情况下出错"
-    validations:
-      required: true
 
   - type: textarea
     id: bugname
