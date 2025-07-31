@@ -1,0 +1,45 @@
+name: 报告Bug
+description: 报告使用脚本时出现的bug，或者通过代码发现的bug
+title: ""
+labels: ["bug", "待确认"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **请填写以下信息，带 * 的为必填项**    
+
+  - type: textarea
+    id: bugname
+    attributes:
+      label: "bug描述 *"
+      description: "输入使用时出现的bug，或者你通过代码发现的bug"
+      placeholder: "在此详细描述bug出现时的现象或者你发现的bug"
+      validations: "此项必填"
+      required: true
+      
+  - type: textarea
+    id: bugreproduce
+    attributes:
+      label: "bug复现步骤"
+      description: "如果不知道怎么复现的就不填"
+      placeholder: |
+        1. 首先这样.
+        2. 然后这样
+        3. 最后再这样
+      required: false
+
+  - type: input
+    id: bugenvironment
+    attributes:
+      label: "系统信息"
+      description: "操作系统/steam++版本等"
+      placeholder: "例如：Windows 11,3.00-rc.6 "
+      required: false
+
+- type: textarea
+    id: bugadditional
+    attributes:
+      label: "错误日志（若有）"
+      description: "如果你拥有bug出现时的错误日志，请提交"
+      placeholder: "你可以在此处粘贴错误日志"
+      required: false
