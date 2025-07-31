@@ -1,12 +1,21 @@
 name: 报告Bug
 description: 报告使用脚本时出现的bug，或者通过代码发现的bug
-title: ""
+title: ""  
 labels: ["bug", "待确认"]
 body:
   - type: markdown
     attributes:
       value: |
-        **请填写以下信息，带 * 的为必填项**    
+        **请填写以下信息，带 * 的为必填项** 
+
+  - type: input
+    id: issue_title
+    attributes:
+      label: "主标题 *"
+      description: "简要描述问题本质"
+      placeholder: "例如：XX功能在XX情况下出错"
+    validations:
+      required: true
 
   - type: textarea
     id: bugname
@@ -14,7 +23,7 @@ body:
       label: "bug描述 *"
       description: "输入使用时出现的bug，或者你通过代码发现的bug"
       placeholder: "在此详细描述bug出现时的现象或者你发现的bug"
-      validations: "此项必填"
+    validations:
       required: true
       
   - type: textarea
@@ -26,15 +35,13 @@ body:
         1. 首先这样.
         2. 然后这样
         3. 最后再这样
-      required: false
 
   - type: input
     id: bugenvironment
     attributes:
       label: "系统信息"
       description: "操作系统/steam++版本等"
-      placeholder: "例如：Windows 11,3.00-rc.6 "
-      required: false
+      placeholder: "例如：Windows 11,3.00-rc.6"
 
   - type: textarea
     id: bugadditional
@@ -42,4 +49,3 @@ body:
       label: "错误日志（若有）"
       description: "如果你拥有bug出现时的错误日志，请提交"
       placeholder: "你可以在此处粘贴错误日志"
-      required: false
