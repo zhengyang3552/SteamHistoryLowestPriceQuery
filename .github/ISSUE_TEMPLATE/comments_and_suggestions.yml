@@ -1,0 +1,18 @@
+name: 意见/建议
+description: 对此脚本弹出一些意见/建议
+title: "[意见/建议]"  
+labels: ["意见/建议"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **请填写以下信息，带 * 的为必填项** 
+
+  - type: textarea
+    id: bugname
+    attributes:
+      label: "意见/建议"
+      description: "如果你对此脚本有一些意见或建议，欢迎提出"
+      placeholder: "在此详细描述你的意见/建议，合理的将考虑采纳，不合理的将视为无效提交"
+    validations:
+      required: true
