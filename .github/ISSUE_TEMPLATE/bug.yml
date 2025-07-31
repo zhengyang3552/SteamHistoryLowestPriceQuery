@@ -36,7 +36,7 @@ body:
       placeholder: "例如：Windows 11,3.00-rc.6 "
       required: false
 
-- type: textarea
+  - type: textarea
     id: bugadditional
     attributes:
       label: "错误日志（若有）"
