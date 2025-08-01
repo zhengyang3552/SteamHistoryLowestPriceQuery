@@ -11,7 +11,7 @@
 // @updateURL https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuery/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
-// @version     1.5
+// @version     1.6
 // @grant       GM_xmlhttpRequest
 // @enable      true
 // jshint esversion:6
@@ -227,19 +227,23 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
                 
                 lowestInfo.innerHTML =
                     // 历史最低价信息
-                    `历史最低价 | ${new Date(app.Info.lowest.timestamp).toLocaleDateString()} 
-                    <span class="discount_pct">-${app.Info.lowest.cut}%</span> 
-                    <span class="discount_original_price">${GETSymbol(app.Info.lowest.price.currency)}${lowestOriginalPrice}</span>
-                    ${GETSymbol(app.Info.lowest.price.currency)}${app.Info.lowest.price.amount}`
+                    `历史最低价 | ${new Date(app.Info.lowest.timestamp).toLocaleDateString()} `
+                    + (app.Info.lowest.cut > 0 ? 
+                        `<span class="discount_pct">-${app.Info.lowest.cut}%</span> 
+                        <span class="discount_original_price">${GETSymbol(app.Info.lowest.price.currency)}${lowestOriginalPrice}</span>
+                        ` : '')
+                    + `${GETSymbol(app.Info.lowest.price.currency)}${app.Info.lowest.price.amount}`
                     + ' | '
                     + '<a target="_blank" title="查看价格历史" href="' + app.Info.urls.history + '">查看价格历史</a>'
                     + '<br />'
                     + (app.Info.current.price.amount <= app.Info.lowest.price.amount
                         ? '<span class="game_purchase_discount_countdown">当前为历史最低价</span>'
-                        : `当前最低价 |
-                        <span class="discount_pct">-${app.Info.current.cut}%</span> 
-                        <span class="discount_original_price">${GETSymbol(app.Info.current.price.currency)}${currentOriginalPrice}</span>
-                        ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount}`)
+                        : (app.Info.current.cut > 0 ? 
+                            `当前最低价 |
+                            <span class="discount_pct">-${app.Info.current.cut}%</span> 
+                            <span class="discount_original_price">${GETSymbol(app.Info.current.price.currency)}${currentOriginalPrice}</span>
+                            ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount}`
+                            : `当前最低价 | ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount}`))
                     + ' | '
                     + '<a target="_blank" title="查看价格信息" href="' + app.Info.urls.info + '">查看价格信息</a>';
             }
