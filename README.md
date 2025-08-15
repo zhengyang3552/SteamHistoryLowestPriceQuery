@@ -1,5 +1,5 @@
-# SteamHistoryLowestPriceQuer
-基于 Watt Toolkit 内置脚本工坊的软妹币玩家、byzod的steam价格查询脚本的优化
+# steam史低脚本
+史低脚本基于 Watt Toolkit 内置脚本工坊的软妹币玩家、byzod的steam价格查询脚本的优化
 
 **优化点**
 * 删除了进包信息（我个人觉得没有什么用，于是删除了）
