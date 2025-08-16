@@ -13,6 +13,6 @@ body:
     attributes:
       label: "意见/建议"
       description: "如果你对此脚本有一些意见或建议，欢迎提出"
-      placeholder: "在此详细描述你的意见/建议，合理的将考虑采纳，不合理的将视为无效提交"
+      placeholder: "在此详细描述你的意见/建议"
     validations:
       required: true
