@@ -5,6 +5,8 @@
 * 删除了进包信息（我个人觉得没有什么用，于是删除了，并且原脚本这里似乎没法正常显示）
 * 重置了翻译和样式
 
+![Screenshot_20250909_233734](https://github.com/user-attachments/assets/4327d0f7-f384-48bb-9b44-e9e9dadf5a34)
+
 # 使用方法：
 1.下载此仓库中的 SteamHistoryLowestPriceQuer.js 脚本
 
