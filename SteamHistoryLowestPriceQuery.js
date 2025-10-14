@@ -11,7 +11,7 @@
 // @updateURL https://raw.githubusercontent.com/zhengyang3552/SteamHistoryLowestPriceQuery/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
-// @version     1.7
+// @version     1.6
 // @grant       GM_xmlhttpRequest
 // @enable      true
 // jshint esversion:6
