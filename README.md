@@ -6,9 +6,11 @@
 * 重置了翻译和样式
 
 手机端浏览器页面视图
+
 ![Screenshot_20251014_233939](https://github.com/user-attachments/assets/3781feeb-869b-4120-b232-39d9a64864cf)
 
 电脑端浏览器页面视图
+
 ![Screenshot_20251015_124601](https://github.com/user-attachments/assets/f42e287b-1b11-4c06-b237-e887294e9405)
 
 # 使用方法：
