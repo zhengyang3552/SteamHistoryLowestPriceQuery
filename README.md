@@ -7,7 +7,8 @@
 
 手机端浏览器页面视图
 
-![Screenshot_20251014_233939](https://github.com/user-attachments/assets/3781feeb-869b-4120-b232-39d9a64864cf)
+![Screenshot_20251015_124852](https://github.com/user-attachments/assets/76d929ea-b99f-41e5-b7d5-0828e3bea7a3)
+
 
 电脑端浏览器页面视图
 
