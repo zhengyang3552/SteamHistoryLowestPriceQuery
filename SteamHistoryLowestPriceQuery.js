@@ -11,7 +11,7 @@
 // @updateURL https://github.com/zhengyang3552/SteamHistoryLowestPriceQuery/raw/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
-// @version     1.7
+// @version     1.8
 // @grant       GM_xmlhttpRequest
 // @enable      true
 // jshint esversion:6
@@ -112,9 +112,15 @@ if (urlMatch && urlMatch.length == 3) {
 // 获取subs
 document.querySelectorAll("input[name=subid]")
     .forEach(sub => subIds.push(sub.value));
-// 获取bundles
+// 获取bundles，解决捆绑包详情页无法显示信息问题
 document.querySelectorAll("input[name=bundleid]")
-    .forEach(sub => bundleids.push(sub.value));
+    .forEach(bundle => bundleids.push(bundle.value));
+
+// 如果在捆绑包页面但没有找到bundleid，使用URL中的appId
+if (type === "bundle" && bundleids.length === 0) {
+    bundleids.push(appId);
+}
+
 let cc = "cn";
 if (CC_OVERRIDE.length > 0) {
     // 使用覆盖的货币区域
@@ -177,7 +183,7 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
     // 获取sub们的数据
     let data = null;
     try {
-        data = await GettingSteamDBAppInfo(appId, type, subIds, stores, cc, protocol);
+        data = await GettingSteamDBAppInfo(appId, type, subIds, bundleids, stores, cc, protocol);
         if ((typeof data == 'string'))
             data = JSON.parse(data);
     } catch (err) {
@@ -187,7 +193,10 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
     let appInfos = [];
     // 如果是bundle，除了.meta外只有一个bundle/xxx，否则是一大堆xxx
     if (type == "bundle") {
-        appInfos.push({ Id: appId, Info: data["bundle/" + appId] });
+        // 从data.prices中获取捆绑包信息
+        if (data && data.prices && data.prices["bundle/" + appId]) {
+            appInfos.push({ Id: appId, Info: data.prices["bundle/" + appId] });
+        }
     } else if (type == "app" || type == "sub") {
         data = data.prices;
         for (let key in data) {
@@ -203,8 +212,8 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
         appInfos.forEach(app => {
             let lowestInfo = lowestPriceNodes[app.Id];
             if (lowestInfo) {
-                //删除原始计算方式，直接使用API返回的app.Info.lowestapp.Info.currentlowest CutcurrentCut
-                //为价格设置toFixed(2)浮点，确保与steam价格浮点显示一致
+                // 删除原始计算方式，直接使用API返回的app.Info.lowest app.Info.current lowestCut currentCut
+                // 为价格设置toFixed(2)浮点，确保与steam价格浮点显示一致
                 const lowestOriginalPrice = app.Info.lowest.regular.amount.toFixed(2);
                 const currentOriginalPrice = app.Info.current.regular.amount.toFixed(2);
                 const lowestCut = app.Info.lowest.cut;
@@ -228,13 +237,13 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
                     + '<br />'
                     // 当前价格信息
                     + (app.Info.current.price.amount <= app.Info.lowest.price.amount
-                        ? `<span class="game_purchase_discount_countdown">当前为历史最低价</span> | 折扣到期：${expiryText}`
+                        ? `<span class="game_purchase_discount_countdown">当前为历史最低价</span>` + (currentCut > 0 ? ` | 优惠到期${expiryText}` : '')
                         : (currentCut > 0 ? 
                             `当前最低价 |
                             <span class="discount_pct">-${currentCut}%</span> 
                             <span class="discount_original_price">${GETSymbol(app.Info.current.price.currency)}${currentOriginalPrice}</span>
-                            ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount.toFixed(2)} | 折扣到期：${expiryText}`
-                            : `当前最低价 | ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount.toFixed(2)} | 折扣到期：${expiryText}`))
+                            ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount.toFixed(2)} | 优惠到期${expiryText}`
+                            : `当前最低价 | ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount.toFixed(2)}`))
                     + ' | '
                     + '<a target="_blank" title="查看价格信息" href="' + app.Info.urls.info + '">查看价格信息</a>';
             }
@@ -243,7 +252,7 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
         // metaInfo为空，或者appInfos无内容
         console.log('[史低]: get lowest price failed, data = %o', data);
         for (let id in lowestPriceNodes) {
-            lowestPriceNodes[id].innerHTML = "";
+            lowestPriceNodes[id].innerHTML = "无法获取价格信息";
         }
     }
     // 返回史低info
@@ -254,11 +263,12 @@ function GETSymbol(currency) {
     return currency in CURRENCY_SYMBOLS ? CURRENCY_SYMBOLS[currency] : currency;
 }
 // 获取史低信息
-async function GettingSteamDBAppInfo(appId, type = "app", subIds = [], stores = "steam", cc = "cn", protocol = "https") {
+async function GettingSteamDBAppInfo(appId, type = "app", subIds = [], bundleids = [], stores = "steam", cc = "cn", protocol = "https") {
     let requestPromise = null;
     let bundleId = [];
     if (type == "bundle") {
-        bundleId = [appId];
+        //在捆绑包详情页面使用appId作为bundleId
+        bundleId = [parseInt(appId)].filter(x => !isNaN(x));
     } else if (type == "app" || type == "sub") {
         bundleId = bundleids?.map(x => parseInt(x)).filter(x => !isNaN(x));
     }
@@ -269,7 +279,14 @@ async function GettingSteamDBAppInfo(appId, type = "app", subIds = [], stores = 
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 url: requestUrl,
-                data: JSON.stringify({ "country": cc, "apps": [], "subs": subIds.map(x => parseInt(x)).filter(x => !isNaN(x)), "bundles": bundleId, "voucher": true, "shops": [61] }),
+                data: JSON.stringify({ 
+                    "country": cc, 
+                    "apps": [], 
+                    "subs": subIds.map(x => parseInt(x)).filter(x => !isNaN(x)), 
+                    "bundles": bundleId, 
+                    "voucher": true, 
+                    "shops": [61] 
+                }),
                 onload: function (response) {
                     resolve(response.response);
                 },
