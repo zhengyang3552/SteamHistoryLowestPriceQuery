@@ -1,0 +1,71 @@
+name: AI Chatbot - 对话响应
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  ai-chatbot:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Check if AI is mentioned
+        id: check-mention
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          python -c "
+          import os
+          import re
+          comment = os.getenv('COMMENT_BODY', '')
+          # 检查是否包含 @AI 的 mention（大小写不敏感）
+          if re.search(r'@[Aa][Ii]\b', comment):
+              with open('${{ env.GITHUB_ENV }}', 'a') as f:
+                  f.write('SHOULD_REPLY=true\n')
+          else:
+              with open('${{ env.GITHUB_ENV }}', 'a') as f:
+                  f.write('SHOULD_REPLY=false\n')
+          "
+
+      - name: Generate AI response
+        if: env.SHOULD_REPLY == 'true'
+        id: generate
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENTER: ${{ github.event.comment.user.login }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python .github/scripts/chatbot.py
+
+      - name: Reply to comment
+        if: env.SHOULD_REPLY == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reply = fs.readFileSync('/tmp/chatbot_reply.txt', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reply
+            });
