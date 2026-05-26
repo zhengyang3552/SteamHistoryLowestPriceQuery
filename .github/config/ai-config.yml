@@ -22,7 +22,7 @@ NVIDIA_API_URL: https://integrate.api.nvidia.com/v1/chat/completions
 
 # 使用的模型
 # 选项: openai/gpt-oss-120b, meta/llama-3.1-405b-instruct 等
-NVIDIA_MODEL: openai/gpt-oss-120b
+MODEL: openai/gpt-oss-120b
 
 # 模型参数
 MODEL_TEMPERATURE: 0.7          # 创意度 (0-1, 越低越保守)
