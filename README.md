@@ -15,7 +15,7 @@
 ![Screenshot_20251015_124601](https://github.com/user-attachments/assets/f42e287b-1b11-4c06-b237-e887294e9405)
 
 # 使用方法：
-1.下载此仓库中的 SteamHistoryLowestPriceQuer.js 脚本
+1.下载此仓库中的 SteamHistoryLowestPriceQuery.js 脚本
 
 2.打开 Watt Toolkit 网络加速→脚本配置→导入
 

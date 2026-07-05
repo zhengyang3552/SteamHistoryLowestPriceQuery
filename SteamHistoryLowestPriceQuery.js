@@ -11,7 +11,7 @@
 // @updateURL https://github.com/zhengyang3552/SteamHistoryLowestPriceQuery/raw/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
-// @version     1.7.1
+// @version     1.7.2
 // @grant       GM_xmlhttpRequest
 // @enable      true
 // jshint esversion:6
@@ -187,7 +187,7 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
         if ((typeof data == 'string'))
             data = JSON.parse(data);
     } catch (err) {
-        console.log('[史低]: ' + err);
+        console.error('[史低]:', err);
     }
     // 解析data
     let appInfos = [];
@@ -198,9 +198,13 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
             appInfos.push({ Id: appId, Info: data.prices["bundle/" + appId] });
         }
     } else if (type == "app" || type == "sub") {
-        data = data.prices;
+        if (!data || !data.prices) {
+            data = {};
+        } else {
+            data = data.prices;
+        }
         for (let key in data) {
-            let appid = key.replace(new RegExp('(app|sub|bundle)/'), "");
+            let appid = key.replace(/(app|sub|bundle)\//, "");
             if (!isNaN(appid)) {
                 appInfos.push({ Id: appid, Info: data[key] });
             }
@@ -211,41 +215,43 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
         // 为每一个sub或bundle添加史低
         appInfos.forEach(app => {
             let lowestInfo = lowestPriceNodes[app.Id];
-            if (lowestInfo) {
+            if (lowestInfo && app.Info) {
+                const lowest = app.Info.lowest;
+                const current = app.Info.current;
+                const urls = app.Info.urls;
+                if (!lowest || !lowest.price || !current || !current.price || !urls) {
+                    lowestInfo.innerHTML = "价格数据不完整";
+                    return;
+                }
                 // 删除原始计算方式，直接使用API返回的app.Info.lowest app.Info.current lowestCut currentCut
                 // 为价格设置toFixed(2)浮点，确保与steam价格浮点显示一致
-                const lowestOriginalPrice = app.Info.lowest.regular.amount.toFixed(2);
-                const currentOriginalPrice = app.Info.current.regular.amount.toFixed(2);
-                const lowestCut = app.Info.lowest.cut;
-                const currentCut = app.Info.current.cut;
+                const lowestOriginalPrice = lowest.regular ? lowest.regular.amount.toFixed(2) : "0.00";
+                const currentOriginalPrice = current.regular ? current.regular.amount.toFixed(2) : "0.00";
+                const lowestCut = lowest.cut || 0;
+                const currentCut = current.cut || 0;
                 // 新增处理折扣到期时间（转换为本地时区的日期+时间）
-                const currentExpiry = app.Info.current.expiry;
+                const currentExpiry = current.expiry;
                 const expiryText = currentExpiry 
                     ? new Date(currentExpiry).toLocaleString() 
                     : "无到期时间";
 
                 lowestInfo.innerHTML =
                     // 历史最低价信息HTML
-                    `历史最低价 | ${new Date(app.Info.lowest.timestamp).toLocaleDateString()} `
+                    `历史最低价 | ${new Date(lowest.timestamp).toLocaleDateString()} `
                     + (lowestCut > 0 ? 
-                        `<span class="discount_pct">-${lowestCut}%</span> 
-                        <span class="discount_original_price">${GETSymbol(app.Info.lowest.price.currency)}${lowestOriginalPrice}</span>
-                        ` : '')
-                    + `${GETSymbol(app.Info.lowest.price.currency)}${app.Info.lowest.price.amount.toFixed(2)}`
+                        `<span class="discount_pct">-${lowestCut}%</span> <span class="discount_original_price">${GETSymbol(lowest.price.currency)}${lowestOriginalPrice}</span> ` 
+                        : '')
+                    + `${GETSymbol(lowest.price.currency)}${lowest.price.amount.toFixed(2)}`
                     + ' | '
-                    + '<a target="_blank" title="查看价格历史" href="' + app.Info.urls.history + '">查看价格历史</a>'
+                    + '<a target="_blank" title="查看价格历史" href="' + urls.history + '">查看价格历史</a>'
                     + '<br />'
-                    // 当前价格信息
-                    + (app.Info.current.price.amount <= app.Info.lowest.price.amount
+                    + (current.price.amount <= lowest.price.amount
                         ? `<span class="game_purchase_discount_countdown">当前为历史最低价</span>` + (currentCut > 0 ? ` | 优惠到期${expiryText}` : '')
                         : (currentCut > 0 ? 
-                            `当前最低价 |
-                            <span class="discount_pct">-${currentCut}%</span> 
-                            <span class="discount_original_price">${GETSymbol(app.Info.current.price.currency)}${currentOriginalPrice}</span>
-                            ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount.toFixed(2)} | 优惠到期${expiryText}`
-                            : `当前最低价 | ${GETSymbol(app.Info.current.price.currency)}${app.Info.current.price.amount.toFixed(2)}`))
+                            `当前最低价 | <span class="discount_pct">-${currentCut}%</span> <span class="discount_original_price">${GETSymbol(current.price.currency)}${currentOriginalPrice}</span> ${GETSymbol(current.price.currency)}${current.price.amount.toFixed(2)} | 优惠到期${expiryText}`
+                            : `当前最低价 | ${GETSymbol(current.price.currency)}${current.price.amount.toFixed(2)}`))
                     + ' | '
-                    + '<a target="_blank" title="查看价格信息" href="' + app.Info.urls.info + '">查看价格信息</a>';
+                    + '<a target="_blank" title="查看价格信息" href="' + urls.info + '">查看价格信息</a>';
             }
         });
     } else {
@@ -268,11 +274,11 @@ async function GettingSteamDBAppInfo(appId, type = "app", subIds = [], bundleids
     let bundleId = [];
     if (type == "bundle") {
         //在捆绑包详情页面使用appId作为bundleId
-        bundleId = [parseInt(appId)].filter(x => !isNaN(x));
+        bundleId = [parseInt(appId, 10)].filter(x => !isNaN(x));
     } else if (type == "app" || type == "sub") {
-        bundleId = bundleids?.map(x => parseInt(x)).filter(x => !isNaN(x));
+        bundleId = bundleids?.map(x => parseInt(x, 10)).filter(x => !isNaN(x));
     }
-    if (!isNaN(appId) && parseInt(appId) > 0) {
+    if (!isNaN(appId) && parseInt(appId, 10) > 0) {
         let requestUrl = protocol + "//api.augmentedsteam.com/prices/v2";
         requestPromise = new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
@@ -282,7 +288,7 @@ async function GettingSteamDBAppInfo(appId, type = "app", subIds = [], bundleids
                 data: JSON.stringify({ 
                     "country": cc, 
                     "apps": [], 
-                    "subs": subIds.map(x => parseInt(x)).filter(x => !isNaN(x)), 
+                    "subs": subIds.map(x => parseInt(x, 10)).filter(x => !isNaN(x)), 
                     "bundles": bundleId, 
                     "voucher": true, 
                     "shops": [61] 
