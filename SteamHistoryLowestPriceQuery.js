@@ -11,7 +11,7 @@
 // @updateURL https://github.com/zhengyang3552/SteamHistoryLowestPriceQuery/raw/main/SteamHistoryLowestPriceQuery.js
 // @author      正阳
 // @license     GPL version 3 or any later version
-// @version     1.7.1
+// @version     1.7.2
 // @grant       GM_xmlhttpRequest
 // @enable      true
 // jshint esversion:6
@@ -132,9 +132,12 @@ if (CC_OVERRIDE.length > 0) {
         cc = ccMatch[1];
     }
 }
-AddLowestPriceTag(appId, type, subIds, bundleids, STORES.join(","), cc, location.protocol);
+// 如果未匹配到有效的 appId，则不执行后续操作
+if (appId && !isNaN(appId)) {
+    AddLowestPriceTag(appId, type, subIds, bundleids, cc, location.protocol);
+}
 // 在商店页添加史低信息
-async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [], stores = "steam", cc = "cn", protocol = "https") {
+async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [], cc = "cn", protocol = "https") {
     // 史低信息容器们
     let lowestPriceNodes = {};
     // 统计subid
@@ -183,7 +186,7 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
     // 获取sub们的数据
     let data = null;
     try {
-        data = await GettingSteamDBAppInfo(appId, type, subIds, bundleids, stores, cc, protocol);
+        data = await GettingSteamDBAppInfo(appId, type, subIds, bundleids, cc, protocol);
         if ((typeof data == 'string'))
             data = JSON.parse(data);
     } catch (err) {
@@ -192,17 +195,19 @@ async function AddLowestPriceTag(appId, type = "app", subIds = [], bundleids = [
     // 解析data
     let appInfos = [];
     // 如果是bundle，除了.meta外只有一个bundle/xxx，否则是一大堆xxx
-    if (type == "bundle") {
-        // 从data.prices中获取捆绑包信息
-        if (data && data.prices && data.prices["bundle/" + appId]) {
-            appInfos.push({ Id: appId, Info: data.prices["bundle/" + appId] });
-        }
-    } else if (type == "app" || type == "sub") {
-        data = data.prices;
-        for (let key in data) {
-            let appid = key.replace(new RegExp('(app|sub|bundle)/'), "");
-            if (!isNaN(appid)) {
-                appInfos.push({ Id: appid, Info: data[key] });
+    if (data && data.prices) {
+        if (type == "bundle") {
+            // 从data.prices中获取捆绑包信息
+            if (data.prices["bundle/" + appId]) {
+                appInfos.push({ Id: appId, Info: data.prices["bundle/" + appId] });
+            }
+        } else if (type == "app" || type == "sub") {
+            let prices = data.prices;
+            for (let key in prices) {
+                let appid = key.replace(new RegExp('(app|sub|bundle)/'), "");
+                if (!isNaN(appid)) {
+                    appInfos.push({ Id: appid, Info: prices[key] });
+                }
             }
         }
     }
@@ -263,40 +268,50 @@ function GETSymbol(currency) {
     return currency in CURRENCY_SYMBOLS ? CURRENCY_SYMBOLS[currency] : currency;
 }
 // 获取史低信息
-async function GettingSteamDBAppInfo(appId, type = "app", subIds = [], bundleids = [], stores = "steam", cc = "cn", protocol = "https") {
-    let requestPromise = null;
-    let bundleId = [];
-    if (type == "bundle") {
-        //在捆绑包详情页面使用appId作为bundleId
-        bundleId = [parseInt(appId)].filter(x => !isNaN(x));
-    } else if (type == "app" || type == "sub") {
-        bundleId = bundleids?.map(x => parseInt(x)).filter(x => !isNaN(x));
+async function GettingSteamDBAppInfo(appId, type = "app", subIds = [], bundleids = [], cc = "cn", protocol = "https") {
+    if (isNaN(appId) || parseInt(appId) <= 0) {
+        return Promise.reject("Invalid appid");
     }
-    if (!isNaN(appId) && parseInt(appId) > 0) {
-        let requestUrl = protocol + "//api.augmentedsteam.com/prices/v2";
-        requestPromise = new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                url: requestUrl,
-                data: JSON.stringify({ 
-                    "country": cc, 
-                    "apps": [], 
-                    "subs": subIds.map(x => parseInt(x)).filter(x => !isNaN(x)), 
-                    "bundles": bundleId, 
-                    "voucher": true, 
-                    "shops": [61] 
-                }),
-                onload: function (response) {
-                    resolve(response.response);
-                },
-                onerror: function (error) {
-                    reject(error);
-                }
-            });
+
+    let requestApps = [];
+    let requestSubs = [];
+    let requestBundles = [];
+    const numAppId = parseInt(appId);
+
+    if (type == "app") {
+        // app 类型时，将 appId 加入 apps 数组
+        requestApps.push(numAppId);
+        requestSubs = subIds.map(x => parseInt(x)).filter(x => !isNaN(x));
+        if (bundleids?.length > 0) {
+            requestBundles = bundleids.map(x => parseInt(x)).filter(x => !isNaN(x));
+        }
+    } else if (type == "sub") {
+        requestSubs = subIds.map(x => parseInt(x)).filter(x => !isNaN(x));
+    } else if (type == "bundle") {
+        // 在捆绑包详情页面使用 appId 作为 bundleId
+        requestBundles = [numAppId];
+    }
+
+    let requestUrl = protocol + "//api.augmentedsteam.com/prices/v2";
+    return new Promise((resolve, reject) => {
+        GM_xmlhttpRequest({
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            url: requestUrl,
+            data: JSON.stringify({
+                "country": cc,
+                "apps": requestApps,
+                "subs": requestSubs,
+                "bundles": requestBundles,
+                "voucher": true,
+                "shops": [61]
+            }),
+            onload: function (response) {
+                resolve(response.response);
+            },
+            onerror: function (error) {
+                reject(error);
+            }
         });
-    } else {
-        requestPromise = Promise.reject("Invalid appid");
-    }
-    return requestPromise;
+    });
 }
