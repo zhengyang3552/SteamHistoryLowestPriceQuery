@@ -1,0 +1,63 @@
+name: Bot Automation
+
+on:
+  workflow_dispatch:
+  # 如需定时执行，取消下面注释：
+  # schedule:
+  #   - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  bot-tasks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App Token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Setup Git user as Bot
+        run: |
+          git config user.name "zy-kimi-k2-6[bot]"
+          git config user.email "4225193+zy-kimi-k2-6[bot]@users.noreply.github.com"
+
+      - name: Update bot activity log
+        id: update_log
+        run: |
+          mkdir -p .github
+          DATE_ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "### Bot Activity Log" > .github/BOT_UPDATE_LOG.md
+          echo "- Last run: \`${DATE_ISO}\`" >> .github/BOT_UPDATE_LOG.md
+          echo "- Trigger: ${{ github.event_name }}" >> .github/BOT_UPDATE_LOG.md
+          echo "- Actor: bot" >> .github/BOT_UPDATE_LOG.md
+
+          git add .github/BOT_UPDATE_LOG.md
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "chore: auto update by bot [${DATE_ISO}]"
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      # 取消以下注释以在变更时自动创建 Issue：
+      # - name: Create tracking issue
+      #   if: steps.update_log.outputs.changed == 'true'
+      #   run: |
+      #     gh issue create \
+      #       --title "🤖 Bot auto update - $(date +%Y-%m-%d)" \
+      #       --body "本次由 \`zy-kimi-k2-6[bot]\` 自动执行了更新。" \
+      #       --label "bot" || true
+      #   env:
+      #     GH_TOKEN: ${{ steps.generate_token.outputs.token }}
